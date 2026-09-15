@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+langchain
+langchain-text-splitters
+langchain-groq
+langchain-mongodb
+langchain-huggingface
+sentence-transformers
+pymongo
+pydantic-settings
+python-dotenv
+requests
+tenacity
+lxml
+tqdm
+pytest
+httpx
