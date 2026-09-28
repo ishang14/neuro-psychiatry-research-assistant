@@ -1,0 +1,12 @@
+.venv
+venv
+.git
+.pytest_cache
+__pycache__
+*.pyc
+.env
+frontend
+tests
+data
+*.nxml
+*.tar.gz

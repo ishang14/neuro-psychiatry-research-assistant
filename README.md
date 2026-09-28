@@ -1,3 +1,12 @@
+---
+title: Neuro Psychiatry Research Assistant
+emoji: 🧠
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
+
 # Neuro-Psychiatry Research Assistant
 
 Ask a neurology/psychiatry research question and get an answer synthesized from PMC Open
@@ -84,22 +93,31 @@ Opens a chat UI at `http://localhost:8501`. It calls the backend at `BACKEND_URL
 MongoDB Atlas and Groq are already cloud services — only the FastAPI backend and Streamlit
 frontend need hosting.
 
-**Backend on Render (free tier):**
-1. Push this repo to GitHub.
-2. In Render, "New +" → "Blueprint", connect the repo — it reads `render.yaml` automatically.
-3. Render prompts for the `sync: false` secrets (`MONGODB_URI`, `GROQ_API_KEY`, `NCBI_API_EMAIL`) — paste your real values there, not into the repo.
-4. Note the resulting public URL (`https://<name>.onrender.com`).
+**Backend on Hugging Face Spaces (free, Docker SDK):**
+1. On [huggingface.co](https://huggingface.co), "New Space" → SDK: **Docker** → name it (e.g.
+   `neuro-psychiatry-research-assistant`).
+2. Add this repo as a second git remote and push to it:
+   ```bash
+   git remote add hf https://huggingface.co/spaces/<your-username>/<space-name>
+   git push hf main
+   ```
+   (HF will prompt for a username/access token on push — create a token with write access at
+   [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).)
+3. In the Space's **Settings → Variables and secrets**, add `MONGODB_URI`, `MONGODB_DB`,
+   `MONGODB_COLLECTION`, `MONGODB_INDEX_NAME`, `EMBEDDING_MODEL_NAME`, `GROQ_API_KEY`,
+   `LLM_MODEL`, `TOP_K`, `PMC_TOPIC_QUERY`, `PMC_MAX_ARTICLES`, `NCBI_API_EMAIL` (secrets for the
+   sensitive ones, variables for the rest — see `.env.example` for values).
+4. The Space builds from the root `Dockerfile` and serves on port 7860. Note the resulting URL
+   (`https://<your-username>-<space-name>.hf.space`).
 
-⚠️ **Known risk:** Render's free web service tier has historically been capped at 512 MB RAM.
-The PubMedBERT embedding model + PyTorch may be tight against that limit — if the deploy
-crashes/OOMs, the fix is switching `EMBEDDING_MODEL_NAME` to a smaller model (e.g.
-`sentence-transformers/all-MiniLM-L6-v2`, ~90 MB) or upgrading to Render's paid Starter tier.
-Free services also sleep after 15 min of inactivity (~1 min cold start on the next request).
+The free CPU tier gives 16 GB RAM (vs. Render's 512 MB), comfortably fitting PubMedBERT +
+PyTorch. Free Spaces sleep after a period of inactivity and cold-start on the next request.
 
 **Frontend on Streamlit Community Cloud (free):**
 1. On [share.streamlit.io](https://share.streamlit.io), "New app", pick this repo, set the main
    file path to `frontend/app.py`.
-2. In the app's "Secrets" settings, add `BACKEND_URL = "https://<your-render-app>.onrender.com"`.
+2. In the app's "Secrets" settings, add
+   `BACKEND_URL = "https://<your-username>-<space-name>.hf.space"`.
 3. Deploy — Streamlit Cloud installs from `frontend/requirements.txt` automatically since it
    sits next to the app file.
 
